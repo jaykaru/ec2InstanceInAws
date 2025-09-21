@@ -128,7 +128,8 @@ resource "aws_s3_bucket_public_access_block" "jkbucket_public_block" {
   ignore_public_acls      = false
   restrict_public_buckets = false
 }
-# Set the bucket ACL to private
+
+# Set the bucket ACL to public-read 
 resource "aws_s3_bucket_acl" "jkbucket_acl" {
   depends_on = [
     aws_s3_bucket_ownership_controls.jkbucket_ownership,
@@ -138,7 +139,7 @@ resource "aws_s3_bucket_acl" "jkbucket_acl" {
   acl    = "public-read"
 }
 
-
+# Generate a random suffix for the S3 bucket name to ensure uniqueness
 resource "random_id" "suffix" {
   byte_length = 4
 }
