@@ -139,11 +139,17 @@ resource "aws_s3_bucket" "jkbucket" {
 }
 
 # Enforce bucket ownership 
+# Make sure the bucket exists and is fully created before applying ownership controls.
+# Try adding a depends_on to ensure the bucket is created first:
 resource "aws_s3_bucket_ownership_controls" "jkbucket_ownership" {
-  bucket = aws_s3_bucket.jkbucket.id
+  depends_on = [aws_s3_bucket.jkbucket]
+  bucket     = aws_s3_bucket.jkbucket.id
 
+  # Ownership controls set to BucketOwnerEnforced.
+  # This mode completely disables ACLs, even if public access block is off.
+  # Ownership control need to set to BucketOwnerPreferred to use ACLs.
   rule {
-    object_ownership = "BucketOwnerEnforced"
+    object_ownership = "BucketOwnerPreferred"
   }
 }
 
@@ -157,15 +163,38 @@ resource "aws_s3_bucket_public_access_block" "jkbucket_public_block" {
   restrict_public_buckets = false
 }
 
-# Set the bucket ACL to public-read 
-resource "aws_s3_bucket_acl" "jkbucket_acl" {
-  #   depends_on = [
-  #     aws_s3_bucket_ownership_controls.jkbucket_ownership,
-  #     aws_s3_bucket_public_access_block.jkbucket_public_block]
+# # Set the bucket ACL to public-read 
+# resource "aws_s3_bucket_acl" "jkbucket_acl" {
+#   #   depends_on = [
+#   #     aws_s3_bucket_ownership_controls.jkbucket_ownership,
+#   #     aws_s3_bucket_public_access_block.jkbucket_public_block]
 
+#   bucket = aws_s3_bucket.jkbucket.id
+#   acl    = "public-read"
+# }
+
+
+
+# Set a bucket policy to allow public read access to all objects in the bucket
+resource "aws_s3_bucket_policy" "jkbucket_public_read" {
   bucket = aws_s3_bucket.jkbucket.id
-  acl    = "public-read"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid       = "PublicReadGetObject"
+        Effect    = "Allow"
+        Principal = "*"
+        Action    = "s3:GetObject"
+        Resource = [
+          "${aws_s3_bucket.jkbucket.arn}/*" # "arn:aws:s3:::my-public-bucket/*"
+        ]
+      }
+    ]
+  })
 }
+
+
 
 # Generate a random suffix for the S3 bucket name to ensure uniqueness
 resource "random_id" "suffix" {
