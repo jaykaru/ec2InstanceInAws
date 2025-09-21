@@ -17,7 +17,7 @@ resource "aws_subnet" "sub1" {
     map_public_ip_on_launch = true
 
     tags = {
-        Name = "sub1-10.0.1.0/24"-"us-west-2a"
+        Name = "sub1-10.0.1.0/24-us-west-2a"
     }
 }
 
