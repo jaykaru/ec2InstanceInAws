@@ -9,5 +9,5 @@ terraform {
 
 provider "aws" {
   # Configuration options
-    region = "us-west-2"
+    region = "eu-west-2"
 }
