@@ -1,0 +1,11 @@
+# Terraform state files
+*.tfstate
+*.tfstate.backup
+
+
+# Local Terraform directories
+.terraform/
+
+# Terraform lock file (optional for modules)
+# Uncomment the line below if you're building reusable modules
+.terraform.lock.hcl
