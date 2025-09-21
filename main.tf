@@ -101,6 +101,34 @@ resource "aws_security_group" "websg" {
   }
 }
 
+# Create an EC2 Instance
+resource "aws_instance" "web_one" {
+  ami                    = var.ami
+  instance_type          = var.instance_type
+  vpc_security_group_ids = [aws_security_group.websg.id]
+  subnet_id              = aws_subnet.sub1.id
+  user_data_base64       = base64encode(file("userdataweb1.sh"))
+  # associate_public_ip_address = true
+  #key_name               = "mykeypair"  # Ensure this key pair exists in the specified region
+
+  tags = {
+    Name = "web-one-ec2"
+  }
+}
+resource "aws_instance" "web_two" {
+  ami                    = var.ami
+  instance_type          = var.instance_type
+  vpc_security_group_ids = [aws_security_group.websg.id]
+  subnet_id              = aws_subnet.sub2.id
+  user_data_base64       = base64encode(file("userdataweb2.sh"))
+  # associate_public_ip_address = true
+  #key_name               = "mykeypair"  # Ensure this key pair exists in the specified region
+
+  tags = {
+    Name = "web-two-ec2"
+  }
+}
+
 # Create an S3 Bucket 
 resource "aws_s3_bucket" "jkbucket" {
   bucket = "jkbucket-${random_id.suffix.hex}"
@@ -131,9 +159,9 @@ resource "aws_s3_bucket_public_access_block" "jkbucket_public_block" {
 
 # Set the bucket ACL to public-read 
 resource "aws_s3_bucket_acl" "jkbucket_acl" {
-  depends_on = [
-    aws_s3_bucket_ownership_controls.jkbucket_ownership,
-  aws_s3_bucket_public_access_block.jkbucket_public_block]
+  #   depends_on = [
+  #     aws_s3_bucket_ownership_controls.jkbucket_ownership,
+  #     aws_s3_bucket_public_access_block.jkbucket_public_block]
 
   bucket = aws_s3_bucket.jkbucket.id
   acl    = "public-read"
