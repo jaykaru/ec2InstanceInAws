@@ -19,4 +19,4 @@ sudo systemctl start apache2
 sudo systemctl enable apache2
 
 # Create a simple index.html
-echo "<h1>Welcome to your Web Two EC2 instance!</h1>" | sudo tee /var/www/html/index.html
+echo "<h1>Welcome to your Web Two EC2 instance! $INSTANCE_ID </h1>" | sudo tee /var/www/html/index.html
