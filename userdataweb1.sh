@@ -1,21 +1,46 @@
 #!/bin/bash
 # Bootstrap script for EC2 instance
 
-# Update package index
-sudo apt-get update -y
+#!/bin/bash
+apt update
+apt install -y apache2
 
-# Install basic utilities
-sudo apt-get install -y curl wget git unzip
-
-# Get the instance ID and write it to a file
+# Get the instance ID using the instance metadata
 INSTANCE_ID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
 
-# Install Apache web server
-sudo apt-get install -y apache2
+# Install the AWS CLI
+apt install -y awscli
 
-# Start and enable Apache
-sudo systemctl start apache2
-sudo systemctl enable apache2
+# Download the images from S3 bucket
+#aws s3 cp s3://myterraformprojectbucket2023/project.webp /var/www/html/project.png --acl public-read
 
-# Create a simple index.html
-echo "<h1>Welcome to your Web One EC2 instance with Instance Id $INSTANCE_ID!</h1>" | sudo tee /var/www/html/index.html
+# Create a simple HTML file with the portfolio content and display the images
+cat <<EOF > /var/www/html/index.html
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My Portfolio</title>
+  <style>
+    /* Add animation and styling for the text */
+    @keyframes colorChange {
+      0% { color: red; }
+      50% { color: green; }
+      100% { color: blue; }
+    }
+    h1 {
+      animation: colorChange 2s infinite;
+    }
+  </style>
+</head>
+<body>
+  <h1>Terraform Project Server 1</h1>
+  <h2>Instance ID: <span style="color:green">$INSTANCE_ID</span></h2>
+  <p>Welcome to Jay's Channel</p>
+  
+</body>
+</html>
+EOF
+
+# Start Apache and enable it on boot
+systemctl start apache2
+systemctl enable apache2
