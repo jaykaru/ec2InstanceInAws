@@ -154,14 +154,14 @@ resource "aws_s3_bucket_ownership_controls" "jkbucket_ownership" {
 }
 
 # Allow public access to the S3 bucket
-resource "aws_s3_bucket_public_access_block" "jkbucket_public_block" {
-  bucket = aws_s3_bucket.jkbucket.id
+# resource "aws_s3_bucket_public_access_block" "jkbucket_public_block" {
+#   bucket = aws_s3_bucket.jkbucket.id
 
-  block_public_acls       = false
-  block_public_policy     = false
-  ignore_public_acls      = false
-  restrict_public_buckets = false
-}
+#   block_public_acls       = false
+#   block_public_policy     = false
+#   ignore_public_acls      = false
+#   restrict_public_buckets = false
+# }
 
 # # Set the bucket ACL to public-read 
 # resource "aws_s3_bucket_acl" "jkbucket_acl" {
@@ -176,23 +176,23 @@ resource "aws_s3_bucket_public_access_block" "jkbucket_public_block" {
 
 
 # Set a bucket policy to allow public read access to all objects in the bucket
-resource "aws_s3_bucket_policy" "jkbucket_public_read" {
-  bucket = aws_s3_bucket.jkbucket.id
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Sid       = "PublicReadGetObject"
-        Effect    = "Allow"
-        Principal = "*"
-        Action    = "s3:GetObject"
-        Resource = [
-          "${aws_s3_bucket.jkbucket.arn}/*" # "arn:aws:s3:::my-public-bucket/*"
-        ]
-      }
-    ]
-  })
-}
+# resource "aws_s3_bucket_policy" "jkbucket_public_read" {
+#   bucket = aws_s3_bucket.jkbucket.id
+#   policy = jsonencode({
+#     Version = "2012-10-17"
+#     Statement = [
+#       {
+#         Sid       = "PublicReadGetObject"
+#         Effect    = "Allow"
+#         Principal = "*"
+#         Action    = "s3:GetObject"
+#         Resource = [
+#           "${aws_s3_bucket.jkbucket.arn}/*" # "arn:aws:s3:::my-public-bucket/*"
+#         ]
+#       }
+#     ]
+#   })
+# }
 
 
 
@@ -200,3 +200,4 @@ resource "aws_s3_bucket_policy" "jkbucket_public_read" {
 resource "random_id" "suffix" {
   byte_length = 4
 }
+
