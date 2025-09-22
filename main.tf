@@ -129,6 +129,72 @@ resource "aws_instance" "web_two" {
   }
 }
 
+# Create an Application Load Balancer
+resource "aws_lb" "web_lb" {
+  name               = "web-lb"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.websg.id]
+  subnets            = [aws_subnet.sub1.id, aws_subnet.sub2.id]
+
+
+  tags = {
+    Name = "web-lb"
+  }
+
+}
+
+resource "aws_lb_target_group" "target_group" {
+  name     = "web-targets"
+  port     = 80
+  protocol = "HTTP"
+  vpc_id   = aws_vpc.myvpc.id
+
+  health_check {
+    path = "/"
+    port = "traffic-port" # Use the same port as the target group
+    # interval            = 30
+    # timeout             = 5
+    # healthy_threshold   = 2
+    # unhealthy_threshold = 2
+    # matcher             = "200"
+  }
+
+  tags = {
+    Name = "web-targets"
+  }
+}
+
+# created target group attachment for both instances
+resource "aws_lb_target_group_attachment" "web_one_attachment" {
+  target_group_arn = aws_lb_target_group.target_group.arn
+  target_id        = aws_instance.web_one.id
+  port             = 80
+}
+
+resource "aws_lb_target_group_attachment" "web_two_attachment" {
+  target_group_arn = aws_lb_target_group.target_group.arn
+  target_id        = aws_instance.web_two.id
+  port             = 80
+}
+
+# Create a Listener for the Load Balancer so that it can route traffic to the target group
+resource "aws_lb_listener" "web_listener" {
+  load_balancer_arn = aws_lb.web_lb.arn
+  port              = "80"
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.target_group.arn
+  }
+}
+
+# Output the Load Balancer DNS name
+output "loadbalancer_dns_name" {
+  value = aws_lb.web_lb.dns_name
+}
+
 # Create an S3 Bucket 
 resource "aws_s3_bucket" "jkbucket" {
   bucket = "jkbucket-${random_id.suffix.hex}"
@@ -152,6 +218,7 @@ resource "aws_s3_bucket_ownership_controls" "jkbucket_ownership" {
     object_ownership = "BucketOwnerPreferred"
   }
 }
+
 
 # Allow public access to the S3 bucket
 # resource "aws_s3_bucket_public_access_block" "jkbucket_public_block" {
