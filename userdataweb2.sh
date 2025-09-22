@@ -1,22 +1,44 @@
 #!/bin/bash
-# Bootstrap script for EC2 instance
+apt update
+apt install -y apache2
 
-# Update package index
-sudo apt-get update -y
+# Get the instance ID using the instance metadata
+INSTANCE_ID=$(curl -H "X-aws-ec2-metadata-token: $(curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")" -s http://169.254.169.254/latest/meta-data/instance-id)
+echo "Instance ID is: $INSTANCE_ID"
 
-# Install basic utilities
-sudo apt-get install -y curl wget git unzip
+# Install the AWS CLI
+apt install -y awscli
 
-# Get the instance ID and write it to a file
-INSTANCE_ID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
-# echo "Instance ID: $INSTANCE_ID" | sudo tee /var/www/html/instance-id.html
+# Download the images from S3 bucket
+#aws s3 cp s3://myterraformprojectbucket2023/project.webp /var/www/html/project.png --acl public-read
 
-# Install Apache web server
-sudo apt-get install -y apache2
+# Create a simple HTML file with the portfolio content and display the images
+cat <<EOF > /var/www/html/index.html
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My Portfolio</title>
+  <style>
+    /* Add animation and styling for the text */
+    @keyframes colorChange {
+      0% { color: red; }
+      50% { color: green; }
+      100% { color: blue; }
+    }
+    h1 {
+      animation: colorChange 2s infinite;
+    }
+  </style>
+</head>
+<body>
+  <h1>Terraform Project Server 2</h1>
+  <h2>Instance ID: <span style="color:green">$INSTANCE_ID</span></h2>
+  <p>Welcome to Jay's Channel</p>
+  
+</body>
+</html>
+EOF
 
-# Start and enable Apache
-sudo systemctl start apache2
-sudo systemctl enable apache2
-
-# Create a simple index.html
-echo "<h1>Welcome to your Web Two EC2 instance! $INSTANCE_ID </h1>" | sudo tee /var/www/html/index.html
+# Start Apache and enable it on boot
+systemctl start apache2
+systemctl enable apache2
