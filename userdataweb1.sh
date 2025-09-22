@@ -9,7 +9,7 @@ sudo apt-get install -y curl wget git unzip
 
 # Get the instance ID and write it to a file
 INSTANCE_ID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
-# echo "Instance ID: $INSTANCE_ID" | sudo tee /var/www/html/instance-id.html
+echo "Instance ID: $INSTANCE_ID" | sudo tee /var/www/html/instance-id.html
 
 # Install Apache web server
 sudo apt-get install -y apache2
